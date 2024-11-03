@@ -18,7 +18,6 @@ class Exam extends Model
         'true',
         'false',
         'empty',
-        'show_result',
         'status_exam',
     ];
 

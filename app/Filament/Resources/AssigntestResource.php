@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\AssigntestExporter;
 use App\Filament\Resources\AssigntestResource\Pages;
-use App\Filament\Resources\AssigntestResource\RelationManagers;
 use App\Models\Assigntest;
 use App\Models\Exam;
 use App\Models\User;
@@ -12,12 +12,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 
 class AssigntestResource extends Resource
@@ -28,7 +26,11 @@ class AssigntestResource extends Resource
 
     protected static ?string $navigationLabel = 'Assign Tests & Monitoring';
 
-    protected static ?string $modelLabel = 'Assign Test & Monitoring';
+    protected static ?string $modelLabel = 'Assign Test';
+
+    protected static ?string $navigationGroup = 'Exam Management';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -135,12 +137,14 @@ class AssigntestResource extends Resource
                     ->relationship('exam', 'name'),
 
                 SelectFilter::make('is_done')
+                    ->label('Status')
                     ->options([
                         '1' => 'Done',
                         '0' => 'Not Done',
                     ]),
 
                 SelectFilter::make('is_cheat')
+                    ->label('Cheat Status')
                     ->options([
                         '1' => 'Cheating',
                         '0' => 'Not Cheating',
@@ -157,7 +161,12 @@ class AssigntestResource extends Resource
                     })
                     ->visible(fn(Assigntest $record) => $record->is_cheat)
                     ->requiresConfirmation(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(AssigntestExporter::class),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -178,6 +187,7 @@ class AssigntestResource extends Resource
         return [
             'index' => Pages\ListAssigntests::route('/'),
             'create' => Pages\CreateAssigntest::route('/create'),
+            'view' => Pages\ViewUserTest::route('/{record}'),
         ];
     }
 }

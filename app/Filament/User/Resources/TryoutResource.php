@@ -61,18 +61,14 @@ class TryoutResource extends Resource
                     ->label('Cheat Reason')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('answers.score')
-                    ->label('Score')
-                    ->getStateUsing(function (?Assigntest $record) {
-                        if ($record === null) {
-                            return 0;
-                        }
-                        return $record->is_done ? $record->answers->sum('score') : 0;
-                    })
-                    ->badge()
-                    ->color(fn(bool $state): string => $state ? 'success' : 'warning')
-                    ->visible(fn(?Assigntest $record) => $record ? $record->exam->show_result : false)
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('answers.score')
+                ->label('Score')
+                ->getStateUsing(function ($record) {
+                    return $record->is_done ? $record->answers->sum('score') : 0;
+                })
+                ->badge()
+                ->color(fn(bool $state): string => $state ? 'success' : 'warning')
+                ->sortable(),
             ])
             ->filters([
                 //

@@ -21,7 +21,6 @@ return new class extends Migration
             $table->integer('true');
             $table->integer('false');
             $table->integer('empty');
-            $table->boolean('show_result');
             $table->boolean('status_exam');
             $table->timestamps();
         });

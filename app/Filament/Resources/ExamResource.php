@@ -19,6 +19,10 @@ class ExamResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Exam Management';
+
+    protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -57,9 +61,6 @@ class ExamResource extends Resource
                     ->numeric()
                     ->required()
                     ->ColumnSpanFull(),
-                Forms\Components\Toggle::make('show_result')
-                    ->label('Show Result')
-                    ->required(),
                 Forms\Components\Toggle::make('status_exam')
                     ->label('Status Exam')
                     ->required(),
@@ -81,8 +82,6 @@ class ExamResource extends Resource
                 Tables\Columns\TextColumn::make('end')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('show_result')
-                    ->boolean(),
                 Tables\Columns\IconColumn::make('status_exam')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
