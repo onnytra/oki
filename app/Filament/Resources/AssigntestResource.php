@@ -26,9 +26,9 @@ class AssigntestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Assign Tests';
+    protected static ?string $navigationLabel = 'Assign Tests & Monitoring';
 
-    protected static ?string $modelLabel = 'Assign Test';
+    protected static ?string $modelLabel = 'Assign Test & Monitoring';
 
     public static function form(Form $form): Form
     {

@@ -2,18 +2,23 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\UserExporter;
 use App\Filament\Imports\UserImporter;
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Mail\UserDataMail;
+use Illuminate\Support\Facades\Mail;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class UserResource extends Resource
 {
@@ -97,14 +102,40 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('sendEmail')
+                ->label('Send Email')
+                ->icon('heroicon-s-paper-airplane')
+                ->color('success')
+                ->action(function (User $record) {
+                    Mail::to($record->email)->send(new UserDataMail($record));
+                    \Filament\Notifications\Notification::make()
+                        ->title('Send Email')
+                        ->success()
+                        ->send();
+                }),
             ])
             ->headerActions([
                 ImportAction::make()
                 ->importer(UserImporter::class),
+                ExportAction::make()
+                ->exporter(UserExporter::class),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('sendBulkEmail')
+                    ->label('Send email selected')
+                    ->icon('heroicon-s-paper-airplane')
+                    ->color('success')
+                    ->action(function (Collection $records) {
+                        foreach ($records as $record) {
+                            Mail::to($record->email)->send(new UserDataMail($record));
+                        }
+                        \Filament\Notifications\Notification::make()
+                            ->title('Emails Sent')
+                            ->success()
+                            ->send();
+                    }),
                 ]),
             ]);
     }

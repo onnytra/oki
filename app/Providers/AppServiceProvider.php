@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Admin;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Auth\Authenticatable;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(Authenticatable::class, Admin::class);
     }
 
     /**
