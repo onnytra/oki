@@ -59,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->databaseNotifications()
             ->authGuard('admin');
     }
 }

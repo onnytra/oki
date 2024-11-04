@@ -8,8 +8,9 @@ use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 
-class AssigntestExporter extends Exporter
+class AssigntestExporters extends Exporter
 {
     protected static ?string $model = Assigntest::class;
 
@@ -54,10 +55,29 @@ class AssigntestExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your assigntest export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Your user export has completed, and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $failedRowsCount = $export->getFailedRowsCount();
+        $latestExport = $export;
 
-        if ($failedRowsCount = $export->getFailedRowsCount()) {
+        $fileUrl = url("storage/filament_exports/{$latestExport->id}/{$latestExport->file_name}.xlsx");
+
+        if ($failedRowsCount > 0) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+            Notification::make()
+                ->title('Export Completed with Some Failures')
+                ->body(
+                    "<a href=\"{$fileUrl}\" target=\"_blank\">CLICK HERE</a>"
+                )
+                ->warning()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Export Completed Successfully')
+                ->body(
+                    "<a href=\"{$fileUrl}\" target=\"_blank\">CLICK HERE</a>"
+                )
+                ->success()
+                ->send();
         }
 
         return $body;

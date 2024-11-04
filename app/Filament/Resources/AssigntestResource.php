@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Model;
@@ -131,6 +132,13 @@ class AssigntestResource extends Resource
                 TextColumn::make('cheat_reason')
                     ->label('Cheat Reason')
                     ->searchable(),
+                TextColumn::make('answers.score')
+                    ->label('Score')
+                    ->getStateUsing(function ($record) {
+                        return $record->is_done ? $record->answers->sum('score') : 0;
+                    })
+                    ->badge()
+                    ->color(fn(bool $state): string => $state ? 'success' : 'warning'),
             ])
             ->filters([
                 SelectFilter::make('exam')

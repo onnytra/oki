@@ -18,6 +18,7 @@ class Tryout extends Component
     public $currentQuestion;
     public $timeLeft;
     public $selectedAnswers = [];
+    public $answeredQuestions = [];
     public $currentQuestionId;
 
     public function mount($id)
@@ -53,7 +54,6 @@ class Tryout extends Component
             return redirect()->route('filament.user.resources.tryouts.index');
         }
 
-
         $this->questions = $this->exam->questions;
 
         if ($this->questions->isNotEmpty()) {
@@ -61,7 +61,7 @@ class Tryout extends Component
             $this->currentQuestion = $this->questions->first();
         }
 
-        $this->initializeAnswers();
+        $this->loadAnswers();
         $this->calculateTimeLeft();
 
         if ($this->timeLeft <= 0 && !$this->assignTest->is_done) {
@@ -69,8 +69,9 @@ class Tryout extends Component
         }
     }
 
-    protected function initializeAnswers()
+    protected function loadAnswers()
     {
+        // First ensure all questions have answer records
         $this->questions->each(function ($question) {
             Answer::firstOrCreate(
                 [
@@ -81,15 +82,21 @@ class Tryout extends Component
             );
         });
 
-        $answers = Answer::where('assigntest_id', $this->assignTest->id)
-            ->whereNotNull('option_id')
-            ->get();
+        // Load all answers for this assignment
+        $answers = Answer::where('assigntest_id', $this->assignTest->id)->get();
 
+        // Reset arrays
+        $this->selectedAnswers = [];
+        $this->answeredQuestions = [];
+
+        // Populate selected answers from database
         foreach ($answers as $answer) {
-            $this->selectedAnswers[$answer->question_id] = $answer->option_id;
+            if ($answer->option_id) {
+                $this->selectedAnswers[$answer->question_id] = $answer->option_id;
+                $this->answeredQuestions[] = $answer->question_id;
+            }
         }
     }
-
     public function render()
     {
         return view('livewire.tryout');
@@ -103,6 +110,7 @@ class Tryout extends Component
 
         $this->currentQuestionId = $questionId;
         $this->currentQuestion = $this->questions->find($questionId);
+        $this->loadAnswers();
         $this->calculateTimeLeft();
     }
 
@@ -143,12 +151,18 @@ class Tryout extends Component
             ]);
 
         $this->selectedAnswers[$questionId] = $optionId;
+
+        if (!in_array($questionId, $this->answeredQuestions)) {
+            $this->answeredQuestions[] = $questionId;
+        }
     }
+
     public function clearAnswer($questionId)
     {
         if ($this->timeLeft <= 0 || $this->assignTest->is_done) {
             return;
         }
+
         Answer::where('assigntest_id', $this->assignTest->id)
             ->where('question_id', $questionId)
             ->update([
@@ -157,8 +171,10 @@ class Tryout extends Component
             ]);
 
         unset($this->selectedAnswers[$questionId]);
-    }
 
+        // Remove from answered questions array
+        $this->answeredQuestions = array_diff($this->answeredQuestions, [$questionId]);
+    }
     public function reportCheat($reason)
     {
         if ($this->assignTest->is_done || $this->assignTest->is_cheat) {
@@ -189,6 +205,5 @@ class Tryout extends Component
         $this->calculateTimeLeft();
 
         session()->flash('message', 'Data berhasil disimpan');
-        // return redirect()->route('filament.user.pages.dashboard');
     }
 }

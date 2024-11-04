@@ -29,9 +29,10 @@
                                     <div class="form-check question-option">
                                         <input class="form-check-input" type="radio"
                                             name="question_{{ $currentQuestion->id }}" value="{{ $option->id }}"
-                                            wire:model="selectedAnswers.{{ $currentQuestion->id }}"
+                                            wire:model.live="selectedAnswers.{{ $currentQuestion->id }}"
                                             wire:change="saveAnswer({{ $currentQuestion->id }}, {{ $option->id }})"
-                                            @if ($timeLeft <= 0 || $assignTest->is_done) disabled @endif>
+                                            @if ($timeLeft <= 0 || $assignTest->is_done) disabled @endif
+                                            @if (isset($selectedAnswers[$currentQuestion->id]) && $selectedAnswers[$currentQuestion->id] == $option->id) checked @endif>
                                         <label class="form-check-label"
                                             style="pointer-events: none">{!! $option->option !!}</label>
                                     </div>
@@ -55,10 +56,14 @@
                         <h5 class="card-title">Navigation</h5>
                         <div class="btn-group-flex grid-container" role="group">
                             @foreach ($questions as $index => $question)
-                                <button type="button" @if ($timeLeft <= 0 || $assignTest->is_done) disabled @endif
+                                <button type="button" 
+                                    @if ($timeLeft <= 0 || $assignTest->is_done) 
+                                        disabled 
+                                    @endif
                                     wire:click="goToQuestion({{ $question->id }})"
-                                    class="btn {{ isset($selectedAnswers[$question->id]) ? 'btn-success' : 'btn-outline-secondary' }} 
-                                    {{ $currentQuestion && $currentQuestion->id === $question->id ? 'active-question' : '' }}">
+                                    class="btn 
+                                        {{ in_array($question->id, $answeredQuestions) ? 'btn-success' : 'btn-outline-secondary' }}
+                                        {{ $currentQuestion && $currentQuestion->id === $question->id ? 'active-question' : '' }}">
                                     {{ $index + 1 }}
                                 </button>
                             @endforeach
@@ -213,8 +218,8 @@
                     'Shift',
                     'Escape',
                     'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
-                    'PageUp', 'PageDown','Home', 'End',
-                    'Insert','PrintScreen','ScrollLock','Pause','NumLock','CapsLock','ContextMenu',
+                    'PageUp', 'PageDown', 'Home', 'End',
+                    'Insert', 'PrintScreen', 'ScrollLock', 'Pause', 'NumLock', 'CapsLock', 'ContextMenu',
                 ];
 
                 if (prohibitedKeys.includes(event.key)) {

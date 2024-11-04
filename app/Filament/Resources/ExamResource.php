@@ -73,9 +73,6 @@ class ExamResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('duration')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('start')
                     ->dateTime()
                     ->sortable(),
