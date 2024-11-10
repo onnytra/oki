@@ -6,6 +6,7 @@ use App\Filament\User\Resources\TryoutResource\Pages;
 use App\Filament\User\Resources\TryoutResource\RelationManagers;
 use App\Models\Answer;
 use App\Models\Assigntest;
+use App\Models\Exam;
 use App\Models\Tryout;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -51,7 +52,6 @@ class TryoutResource extends Resource
                     ->badge()
                     ->color(fn(bool $state): string => $state ? 'success' : 'warning')
                     ->formatStateUsing(fn(bool $state): string => $state ? 'Done' : 'Not Done'),
-
                 Tables\Columns\TextColumn::make('is_cheat')
                     ->label('Cheat Status')
                     ->badge()
@@ -61,14 +61,17 @@ class TryoutResource extends Resource
                     ->label('Cheat Reason')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('answers.score')
-                ->label('Score')
-                ->getStateUsing(function ($record) {
-                    return $record->is_done ? $record->answers->sum('score') : 0;
-                })
-                ->badge()
-                ->color(fn(bool $state): string => $state ? 'success' : 'warning')
-                ->sortable(),
+                    Tables\Columns\TextColumn::make('answers.score')
+                    ->label('Score')
+                    ->getStateUsing(function ($record) {
+                        if ($record->exam->show_result && $record->is_done) {
+                            return $record->answers->sum('score');
+                        }
+                        return 'Not Available';
+                    })
+                    ->badge()
+                    ->color('warning')
+                    ->sortable(),
             ])
             ->filters([
                 //

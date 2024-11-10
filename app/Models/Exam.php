@@ -19,6 +19,7 @@ class Exam extends Model
         'false',
         'empty',
         'status_exam',
+        'show_result',
     ];
 
     public function assigntests()

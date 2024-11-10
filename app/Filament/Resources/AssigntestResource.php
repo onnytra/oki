@@ -135,7 +135,7 @@ class AssigntestResource extends Resource
                 TextColumn::make('answers.score')
                     ->label('Score')
                     ->getStateUsing(function ($record) {
-                        return $record->is_done ? $record->answers->sum('score') : 0;
+                        return $record->answers->sum('score');
                     })
                     ->badge()
                     ->color(fn(bool $state): string => $state ? 'success' : 'warning'),

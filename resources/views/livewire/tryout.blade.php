@@ -56,10 +56,7 @@
                         <h5 class="card-title">Navigation</h5>
                         <div class="btn-group-flex grid-container" role="group">
                             @foreach ($questions as $index => $question)
-                                <button type="button" 
-                                    @if ($timeLeft <= 0 || $assignTest->is_done) 
-                                        disabled 
-                                    @endif
+                                <button type="button" @if ($timeLeft <= 0 || $assignTest->is_done) disabled @endif
                                     wire:click="goToQuestion({{ $question->id }})"
                                     class="btn 
                                         {{ in_array($question->id, $answeredQuestions) ? 'btn-success' : 'btn-outline-secondary' }}
@@ -202,16 +199,13 @@
 
             function handleKeyDown(event) {
                 const allowedKeys = /^[0-9a-zA-Z]$/;
+                const allowedSpecialKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
                 const prohibitedKeys = [
                     'Tab',
                     'Enter',
                     'Backspace',
                     'Delete',
-                    'ArrowLeft',
-                    'ArrowRight',
-                    'ArrowUp',
-                    'ArrowDown',
                     'Control',
                     'Alt',
                     'Meta',
@@ -221,14 +215,12 @@
                     'PageUp', 'PageDown', 'Home', 'End',
                     'Insert', 'PrintScreen', 'ScrollLock', 'Pause', 'NumLock', 'CapsLock', 'ContextMenu',
                 ];
-
                 if (prohibitedKeys.includes(event.key)) {
                     @this.call('reportCheat', 'Prohibited key detected: ' + event.key);
                     event.preventDefault();
                     return;
                 }
-
-                if (!allowedKeys.test(event.key)) {
+                if (!allowedSpecialKeys.includes(event.key) && !allowedKeys.test(event.key)) {
                     @this.call('reportCheat', 'Unauthorized key detected: ' + event.key);
                     event.preventDefault();
                     return;

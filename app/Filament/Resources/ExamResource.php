@@ -64,6 +64,9 @@ class ExamResource extends Resource
                 Forms\Components\Toggle::make('status_exam')
                     ->label('Status Exam')
                     ->required(),
+                Forms\Components\Toggle::make('show_result')
+                    ->label('Show Result')
+                    ->required(),
             ]);
     }
 
@@ -80,6 +83,8 @@ class ExamResource extends Resource
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('status_exam')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('show_result')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
